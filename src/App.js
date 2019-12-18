@@ -37,12 +37,12 @@ class App extends React.Component {
   )
 
   handleShowItems = n => (
-    this.setState(state => ({
+    this.setState({
       tabs: {
-        page: state.tabs.page,
+        page: 1,
         perPage: n,
       },
-    }))
+    })
   )
 
   handleTabs = page => (
