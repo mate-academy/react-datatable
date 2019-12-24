@@ -1,0 +1,35 @@
+html {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(to right, #3a7fd5, #6ebce2);
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+}
+
+.main-title,
+.message {
+  color: white;
+}
+
+.table-wrapper {
+  width: 60%;
+  padding: 20px;
+  background-color: #fff;
+}
+
+.table-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.highlighted-text {
+  background-color: green;
+}
