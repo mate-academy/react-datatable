@@ -1,7 +1,7 @@
 import React, { useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Table, Checkbox } from 'semantic-ui-react';
+import { Table, Checkbox, Input } from 'semantic-ui-react';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -14,6 +14,8 @@ const Datatable = ({ items, columnConfig }) => {
   const [direction, setDirection] = useState(null);
   const [sortType, setSortType] = useState('');
   const [selectedItems, setSelectedItems] = useState([]);
+  const [itemToEdit, setItemToEdit] = useState({});
+  const [editValue, setEditValue] = useState('');
 
   const switchPage = ($, data) => {
     setPage(data.activePage);
@@ -87,6 +89,11 @@ const Datatable = ({ items, columnConfig }) => {
       : setSelectedItems([]);
   };
 
+  const editCell = (item, value) => {
+    setItemToEdit(item);
+    setEditValue(value);
+  }
+
   const value = searchValue.toLowerCase();
   const searchedItems = items.filter(item => (
     _.keys(columnConfig)
@@ -109,7 +116,18 @@ const Datatable = ({ items, columnConfig }) => {
   const pagesAmount = Math.ceil(totalItemsAmount / itemsPerPage);
   const firstItem = (page - 1) * itemsPerPage + 1;
   const lastItem = page * itemsPerPage;
-  const visibleItems = sortedItems.slice(firstItem - 1, lastItem);
+  const visibleItems = sortedItems.slice(firstItem - 1, lastItem)
+    .map(item => {
+      if (item === itemToEdit) {
+        return {
+          ...item,
+          isEditable: true,
+        }
+      }
+
+      return item;
+    });
+  console.log(visibleItems);
 
   return (
     <div className="table-wrapper">
@@ -131,7 +149,7 @@ const Datatable = ({ items, columnConfig }) => {
 
             {_.map(columnConfig, (column, key) => (
               <Table.HeaderCell
-                style={{ textAlign: 'center' }}
+                style={{ textAlign: 'center', }}
                 key={column.title}
                 sorted={activeColumn === column ? direction : null}
                 onClick={() => handleSort(key, column.sortType)}
@@ -144,19 +162,39 @@ const Datatable = ({ items, columnConfig }) => {
 
         <Table.Body>
           {_.map(visibleItems, item => (
-            <Table.Row key={item.name}>
-              <Table.Cell>
-                <Checkbox
-                  toggle
-                  checked={selectedItems.includes(item)}
-                  onChange={() => toggleItem(item)}
+            item.isEditable ? (
+              // <Table.Row>
+                // <Table.Cell>
+                <Input
+                  value={editValue}
+                  className="edit-input"
                 />
-              </Table.Cell>
+                // </Table.Cell>
+              // </Table.Row>
 
-              <Table.Cell>{highlightText(item.name)}</Table.Cell>
-              <Table.Cell>{item.age}</Table.Cell>
-              <Table.Cell>{highlightText(item.snippet)}</Table.Cell>
-            </Table.Row>
+            ) : (
+              <Table.Row key={item.name}>
+                <Table.Cell>
+                  <Checkbox
+                    toggle
+                    checked={selectedItems.includes(item)}
+                    onChange={() => toggleItem(item)}
+                  />
+                </Table.Cell>
+
+                <Table.Cell onDoubleClick={() => editCell(item, item.name)}>
+                  {highlightText(item.name)}
+                </Table.Cell>
+
+                <Table.Cell onDoubleClick={() => editCell(item, item.age)}>
+                  {item.age}
+                </Table.Cell>
+
+                <Table.Cell onDoubleClick={() => editCell(item, item.snippet)}>
+                  {highlightText(item.snippet)}
+                </Table.Cell>
+              </Table.Row>
+            )
           ))}
         </Table.Body>
       </Table>
@@ -178,7 +216,7 @@ Datatable.propTypes = {
     PropTypes.object
   ).isRequired,
   columnConfig: PropTypes.objectOf(
-    PropTypes.string
+    PropTypes.object
   ).isRequired,
 };
 

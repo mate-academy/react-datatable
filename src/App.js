@@ -43,6 +43,8 @@ const App = () => {
     fetchData();
   }, []);
 
+  console.log(originalItems)
+
   return (
     <div className="App">
       <h1 className="main-title">React Datatable</h1>
@@ -55,7 +57,6 @@ const App = () => {
         <Datatable
           items={originalItems}
           columnConfig={columnConfig}
-          onSelectionChanged={(selectedItems) => {}}
         />
       )}
     </div>
