@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
+import { Button, Message } from 'semantic-ui-react';
 import { getPhonesFromServer } from './api/getPhonesFromServer';
 import Datatable from './Components/Datatable';
 
@@ -18,9 +19,10 @@ const columnConfig = {
     isSearchable: true,
   },
 };
+const storedItems = JSON.parse(localStorage.getItem('originalItems'));
 
 const App = () => {
-  const [originalItems, setOriginalItems] = useState([]);
+  const [originalItems, setOriginalItems] = useState(storedItems || []);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
@@ -32,7 +34,9 @@ const App = () => {
       try {
         const phonesData = await getPhonesFromServer();
 
-        setOriginalItems(phonesData);
+        if (!storedItems) {
+          setOriginalItems(phonesData);
+        }
       } catch (error) {
         setIsError(true);
       }
@@ -43,21 +47,61 @@ const App = () => {
     fetchData();
   }, []);
 
-  console.log(originalItems)
+  const editItem = (itemToEdit) => {
+    const editedItems = originalItems.map((item) => {
+      if (item.id === itemToEdit.id) {
+        const keys = Object.keys(columnConfig);
+
+        if (keys.every(key => itemToEdit[key] === '')) {
+          return 'empty';
+        }
+
+        return itemToEdit;
+      }
+
+      return item;
+    });
+
+    if (editedItems.includes('empty')) {
+      editedItems.splice(editedItems.indexOf('empty'), 1);
+    }
+
+    setOriginalItems(editedItems);
+  };
+
+  const setDefaultItems = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
 
   return (
     <div className="App">
-      <h1 className="main-title">React Datatable</h1>
+      <div className="table-container">
+        <h1 className="main-title">React Datatable</h1>
 
-      {isError && <div className="message">Something went wrong ...</div>}
+        {isError && <div className="message">Something went wrong ...</div>}
 
-      {isLoading ? (
-        <div className="message">Loading ...</div>
-      ) : (
-        <Datatable
-          items={originalItems}
-          columnConfig={columnConfig}
-        />
+        {isLoading ? (
+          <div className="message">Loading ...</div>
+        ) : (
+          <Datatable
+            items={originalItems}
+            columnConfig={columnConfig}
+            onEdit={editItem}
+          />
+        )}
+      </div>
+
+      {storedItems && (
+        <>
+          <Message>
+            <p>The data was restored from your local storage</p>
+          </Message>
+
+          <Button onClick={setDefaultItems}>
+            Reset to default
+          </Button>
+        </>
       )}
     </div>
   );

@@ -20,12 +20,15 @@ const itemsPerPageOptions = [
   },
 ];
 
-const Header = ({ onChangeItemsPerPage, onSearchItems }) => (
+const Header = (
+  { onChangeItemsPerPage, onSearchItems, inputValue, selectValue }
+) => (
   <div className="table-options">
     <Select
       placeholder="Select phones per page"
       options={itemsPerPageOptions}
       onChange={onChangeItemsPerPage}
+      value={selectValue}
     />
 
     <Input
@@ -34,6 +37,7 @@ const Header = ({ onChangeItemsPerPage, onSearchItems }) => (
       iconPosition="left"
       type="search"
       onChange={onSearchItems}
+      value={inputValue}
     />
   </div>
 );
@@ -41,6 +45,8 @@ const Header = ({ onChangeItemsPerPage, onSearchItems }) => (
 Header.propTypes = {
   onChangeItemsPerPage: PropTypes.func.isRequired,
   onSearchItems: PropTypes.func.isRequired,
+  inputValue: PropTypes.string.isRequired,
+  selectValue: PropTypes.string.isRequired,
 };
 
 export default Header;
