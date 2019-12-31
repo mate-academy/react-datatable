@@ -197,7 +197,7 @@ const Datatable = ({ items, columnConfig, onEdit }) => {
         selectValue={itemsPerPage}
       />
 
-      <Table striped sortable selectable celled>
+      <Table striped sortable selectable celled style={{ width: '1000' }}>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>
