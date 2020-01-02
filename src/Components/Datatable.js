@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import cn from 'classnames';
 import _ from 'lodash';
 import { Table, Checkbox, Form } from 'semantic-ui-react';
 import Header from './Header';
@@ -197,10 +198,10 @@ const Datatable = ({ items, columnConfig, onEdit }) => {
         selectValue={itemsPerPage}
       />
 
-      <Table striped sortable selectable celled style={{ width: '1000' }}>
+      <Table striped sortable selectable celled>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell>
+            <Table.HeaderCell className={cn('header')}>
               <Checkbox
                 toggle
                 onChange={toggleAllItems}
@@ -214,6 +215,11 @@ const Datatable = ({ items, columnConfig, onEdit }) => {
                 key={column.title}
                 sorted={activeColumn === column ? direction : null}
                 onClick={() => handleSort(key, column.sortType)}
+                // className={column.title === 'Название' && 'name-header'}
+                className={cn(
+                  'header',
+                  (column.title === 'Описание' && 'snipet-header'),
+                )}
               >
                 {column.title}
               </Table.HeaderCell>
