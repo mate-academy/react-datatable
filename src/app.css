@@ -1,0 +1,42 @@
+.mySelect {
+  width: 80px;
+}
+
+.myContainer {
+  display: flex;
+  width: 500px;
+  justify-content: space-around;
+  margin: 50px auto 0;
+}
+
+.myTitle {
+  transform: rotate(90deg);
+}
+
+.isNotSelectAll {
+  color: rgb(109, 109, 109);
+  transition: all 0.3s;
+}
+
+.isSelectAll {
+  color: #fff;
+  transition: all 0.3s;
+}
+
+.tHead {
+  cursor: pointer;
+}
+
+.myInput {
+  width: 400px;
+  margin: 15px auto;
+}
+
+.myErr {
+  text-align: center;
+  font-size: 35px;
+}
+
+.myCount {
+  text-align: center;
+}
