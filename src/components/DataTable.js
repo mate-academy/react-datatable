@@ -1,6 +1,5 @@
 import React from 'react';
 import { THead } from './THead';
-import PropTypes, { shape } from 'prop-types';
 
 class DataTable extends React.PureComponent {
 

@@ -4,9 +4,6 @@ import cn from 'classnames';
 export const THead = ({
   columnConfig, selected, selectAllPhones, sortPhonesBy
 }) => {
-  const searchableParams = Object
-    .values(columnConfig)
-    .filter(phone => phone.isSearchable);
 
   return (
     <thead>

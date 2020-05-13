@@ -25,7 +25,7 @@ const columnConfig = {
   }
 };
 
-class App extends React.Component {
+class App extends React.PureComponent {
   state = {
     items: [],
     currentPage: 1,
@@ -51,7 +51,8 @@ class App extends React.Component {
     }, () => this.isCheckedAll());
   }
 
-  nearbyPage = (path) => {
+  nearbyPage = (e, path) => {
+    e.preventDefault();
     const { currentPage, items, perPage, filterValue } = this.state;
     let filteredPhones = items;
 
@@ -61,14 +62,14 @@ class App extends React.Component {
 
     if ((currentPage + path > Math.ceil(filteredPhones.length / perPage))
       || (currentPage + path === 0)) {
-      console.log('in');
       return
     }
 
     this.setState(state => ({ currentPage: state.currentPage + path }))
   }
 
-  selectPage = (page) => {
+  selectPage = (e, page) => {
+    e.preventDefault();
     this.setState({ currentPage: page });
   }
 
@@ -95,7 +96,8 @@ class App extends React.Component {
 
   isCheckedAll = (phones = false) => {
     const { items } = this.state
-    let isSelected = items.every(phone => phone.checked)
+    let isSelected = items.every(phone => phone.checked);
+
     if (!phones) {
       if (isSelected) {
         this.setState({ selectAll: true })
@@ -123,27 +125,47 @@ class App extends React.Component {
 
       case 'Описание':
         return 'snippet';
+
+      default:
+        return 'age';
     }
   }
 
   selectAllPhones = () => {
-    this.setState(state => ({
-      items: state.items.map(phone => ({
+    const { filterValue, items } = this.state;
+    const filteredPhones = this.filterPhones();
+    const selectFilteredPhones = items
+      .map(phone => ({
         ...phone,
-        checked: !state.selectAll
-      })),
-      selectAll: !state.selectAll
-    }))
+        checked: filteredPhones
+          .some(filter => filter.id === phone.id)
+      }))
+
+    if (filterValue) {
+      this.setState(state => ({
+        items: selectFilteredPhones,
+        selectAll: !state.selectAll
+      }))
+    } else {
+      this.setState(state => ({
+        items: state.items.map(phone => ({
+          ...phone,
+          checked: !state.selectAll
+        })),
+        selectAll: !state.selectAll
+      }))
+    }
   }
 
   sortPhonesBy = (sortParam, sortTitle) => {
+
     const { sortedMethod, items } = this.state;
     let sortBy = this.switchTitle(sortTitle);
     let sortedPhones = [];
 
     if (sortBy === sortedMethod) {
       sortedPhones = [...items].reverse();
-      this.setState({ items: sortedPhones })
+      this.setState(() => ({ items: sortedPhones }))
       return;
     }
 
@@ -204,32 +226,31 @@ class App extends React.Component {
       .values(columnConfig)
       .filter(config => config.isSearchable);
     const searchKey = [];
-    const setFilteredPhones = new Set();
 
+    let filteredPhones;
     valueForSearch
       .map(phone => phone.title)
       .forEach(key => searchKey
         .push(this.switchTitle(key)));
 
-
     searchKey.forEach(key => {
-      items.forEach(phone => {
+      filteredPhones = items.filter(phone => {
         if (phone[key]
           .toLocaleLowerCase()
           .includes(filterValue
             .toLocaleLowerCase())) {
-          setFilteredPhones.add(phone)
+          return true;
         }
       })
     });
-    const resultFilter = [...setFilteredPhones.values()]
 
-    return resultFilter;
+    return filteredPhones;
   }
 
   render() {
     const {
-      perPage, items, currentPage, selectAll, searchValue, filterValue
+      perPage, items, currentPage, selectAll, searchValue,
+      filterValue,
     } = this.state;
     let searchedPhones = items;
 

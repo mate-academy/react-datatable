@@ -5,16 +5,16 @@ export const Buttons = ({ page, nearbyPage, selectPage, items, perPage }) => {
   const buttons = new Array(Math.ceil(items.length / perPage))
     .fill(0)
     .map((button, i) => i + 1);
-  console.log(buttons);
+
   return (
     <nav aria-label="Page navigation example">
       <ul className="pagination">
         <li className="page-item">
           <a
             className="page-link"
-            href="#"
+            href="/"
             aria-label="Previous"
-            onClick={() => nearbyPage(-1)}
+            onClick={(e) => nearbyPage(e, -1)}
           >
             <span aria-hidden="true">&laquo;</span>
           </a>
@@ -29,8 +29,8 @@ export const Buttons = ({ page, nearbyPage, selectPage, items, perPage }) => {
           >
             <a
               className="page-link"
-              href='#'
-              onClick={() => selectPage(button)}
+              href='/'
+              onClick={(e) => selectPage(e, button)}
             >
               {button}
             </a>
@@ -39,9 +39,9 @@ export const Buttons = ({ page, nearbyPage, selectPage, items, perPage }) => {
         <li className="page-item">
           <a
             className="page-link"
-            href="#"
+            href="/"
             aria-label="Next"
-            onClick={() => nearbyPage(1)}
+            onClick={(e) => nearbyPage(e, 1)}
           >
             <span aria-hidden="true">&raquo;</span>
           </a>
