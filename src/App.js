@@ -132,13 +132,15 @@ class App extends React.PureComponent {
   }
 
   selectAllPhones = () => {
-    const { filterValue, items } = this.state;
+    const { filterValue, items, selectAll } = this.state;
     const filteredPhones = this.filterPhones();
     const selectFilteredPhones = items
       .map(phone => ({
         ...phone,
         checked: filteredPhones
           .some(filter => filter.id === phone.id)
+          ? !selectAll
+          : phone.checked,
       }))
 
     if (filterValue) {
@@ -212,7 +214,7 @@ class App extends React.PureComponent {
   filterPost = () => {
     const { searchValue } = this.state;
 
-    this.setState({ filterValue: searchValue }, () => {
+    this.setState({ filterValue: searchValue, currentPage: 1 }, () => {
       const filteredList = this.filterPhones()
       this.isCheckedAll(filteredList)
     });
