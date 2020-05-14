@@ -1,139 +1,143 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './app.css';
 
-import DataTable from './components/DataTable';
+import { DataTable } from './components/DataTable';
 import { getPhones } from './helper/getData';
 import { Select } from './components/select';
-import { Buttons } from "./components/Buttons";
+import { Buttons } from './components/Buttons';
+import { debounce } from './helper/debounce';
+import { filterPhones } from './helper/filterPhones';
+import { switchTitle } from './helper/switchTitle';
+import { columnConfig } from './helper/columnConfig';
 
-const columnConfig = {
-  checked: {
-    title: '❯'
-  },
-  name: {
-    title: 'Название',
-    sortType: 'string',
-    isSearchable: true,
-  },
-  age: {
-    title: 'Возраст',
-    sortType: 'number',
-  },
-  snippet: {
-    title: 'Описание',
-    isSearchable: true,
-  }
-};
+export const App = () => {
+  const [items, setPhonesItems] = useState([]);
+  const [searchValue, setSearchValue] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  const [perPage, setPerPageValue] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [visiblePhones, setVisiblePhones] = useState([]);
+  const [selectAll, setSelectAllStatus] = useState(false);
+  const [sortedMethod, setSortedMethod] = useState('age');
+  let searchedPhones;
 
-class App extends React.PureComponent {
-  state = {
-    items: [],
-    currentPage: 1,
-    perPage: 5,
-    selectAll: false,
-    sortedMethod: 'age',
-    searchValue: '',
-    filterValue: '',
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     getPhones()
-      .then(phones => this.setState({ items: phones }));
-  }
+      .then((phones) => {
+        setPhonesItems(phones);
+        setVisiblePhones(phones);
+      });
+  }, []);
 
-  changeSelectPage = (e) => {
+  useEffect(() => {
+    if (searchValue) {
+      searchedPhones = filterPhones(columnConfig, items, searchValue);
+      setVisiblePhones(searchedPhones);
+    } else {
+      searchedPhones = items;
+      setVisiblePhones(searchedPhones);
+    }
+  }, [searchValue, items]);
+
+  useEffect(() => {
+    const filter = filterPhones(columnConfig, items, searchValue);
+
+    if (filter.length) {
+      isCheckedAll(filter);
+    } else {
+      isCheckedAll();
+    }
+  }, [items]);
+
+  useEffect(() => {
+    let filter = items;
+
+    if (searchValue) {
+      filter = filterPhones(columnConfig, items, searchValue);
+    }
+
+    isCheckedAll(filter);
+  }, [searchValue]);
+
+  const debounceWrapper = useCallback(
+    debounce(value => setValue(value), 1000),
+    []
+  );
+
+  const setValue = (value) => {
+    setSearchValue(value);
+    setCurrentPage(1);
+  };
+
+  const changeSelectPage = (e) => {
     const newValue = e.target.value;
-    this.setState({
-      perPage: newValue,
-      currentPage: 1,
-      searchValue: '',
-      filterValue: '',
-    }, () => this.isCheckedAll());
-  }
 
-  nearbyPage = (e, path) => {
-    e.preventDefault();
-    const { currentPage, items, perPage, filterValue } = this.state;
-    let filteredPhones = items;
+    setPerPageValue(newValue);
+    setCurrentPage(1);
+  };
 
-    if (filterValue) {
-      filteredPhones = this.filterPhones();
-    }
-
-    if ((currentPage + path > Math.ceil(filteredPhones.length / perPage))
-      || (currentPage + path === 0)) {
-      return
-    }
-
-    this.setState(state => ({ currentPage: state.currentPage + path }))
-  }
-
-  selectPage = (e, page) => {
-    e.preventDefault();
-    this.setState({ currentPage: page });
-  }
-
-  changeStatus = (id) => {
-    const { items } = this.state;
+  const changeStatus = (id) => {
     const preparedPhones = items.map(phone => ({
       ...phone,
       checked: id === phone.id
         ? !phone.checked
         : phone.checked,
-    }))
+    }));
 
-    this.setState({ items: preparedPhones },
-      () => {
-        const filter = this.filterPhones();
+    setPhonesItems(preparedPhones);
+  };
 
-        if (filter.length) {
-          this.isCheckedAll(filter)
-        } else {
-          this.isCheckedAll()
-        }
-      })
-  }
+  const startDebounce = (e) => {
+    const { value } = e.target;
 
-  isCheckedAll = (phones = false) => {
-    const { items } = this.state
+    setInputValue(value);
+    debounceWrapper(value);
+  };
+
+  const selectPage = (e, page) => {
+    e.preventDefault();
+    setCurrentPage(page);
+  };
+
+  const nearbyPage = (e, path) => {
+    e.preventDefault();
+
+    let filteredPhones = items;
+
+    if (searchValue) {
+      filteredPhones = filterPhones(columnConfig, items, searchValue);
+    }
+
+    if ((currentPage + path > Math.ceil(filteredPhones.length / perPage))
+      || (currentPage + path === 0)) {
+      return;
+    }
+
+    setCurrentPage(currentPage + path);
+  };
+
+  const isCheckedAll = (phones = false) => {
     let isSelected = items.every(phone => phone.checked);
 
     if (!phones) {
       if (isSelected) {
-        this.setState({ selectAll: true })
+        setSelectAllStatus(true);
       } else {
-        this.setState({ selectAll: false })
+        setSelectAllStatus(false);
       }
     } else {
-      isSelected = phones.every(phone => phone.checked)
+      isSelected = phones.every(phone => phone.checked);
+
       if (isSelected) {
-        this.setState({ selectAll: true })
+        setSelectAllStatus(true);
       } else {
-        this.setState({ selectAll: false })
+        setSelectAllStatus(false);
       }
     }
+  };
 
-  }
-
-  switchTitle = (param) => {
-    switch (param) {
-      case 'Название':
-        return 'name';
-
-      case 'Возраст':
-        return 'age';
-
-      case 'Описание':
-        return 'snippet';
-
-      default:
-        return 'age';
-    }
-  }
-
-  selectAllPhones = () => {
-    const { filterValue, items, selectAll } = this.state;
-    const filteredPhones = this.filterPhones();
+  const selectAllPhones = () => {
+    const filteredPhones = filterPhones(columnConfig, items, searchValue);
     const selectFilteredPhones = items
       .map(phone => ({
         ...phone,
@@ -141,44 +145,38 @@ class App extends React.PureComponent {
           .some(filter => filter.id === phone.id)
           ? !selectAll
           : phone.checked,
-      }))
+      }));
 
-    if (filterValue) {
-      this.setState(state => ({
-        items: selectFilteredPhones,
-        selectAll: !state.selectAll
-      }))
+    if (searchValue) {
+      setPhonesItems(selectFilteredPhones);
+      setSelectAllStatus(!selectAll);
     } else {
-      this.setState(state => ({
-        items: state.items.map(phone => ({
-          ...phone,
-          checked: !state.selectAll
-        })),
-        selectAll: !state.selectAll
-      }))
+      const preparedPhonesWithoutSearchValue = items.map(phone => ({
+        ...phone,
+        checked: !selectAll,
+      }));
+
+      setPhonesItems(preparedPhonesWithoutSearchValue);
+      setSelectAllStatus(!selectAll);
     }
-  }
+  };
 
-  sortPhonesBy = (sortParam, sortTitle) => {
-
-    const { sortedMethod, items } = this.state;
-    let sortBy = this.switchTitle(sortTitle);
+  const sortPhonesBy = (sortParam, sortTitle) => {
+    const sortBy = switchTitle(sortTitle);
     let sortedPhones = [];
 
     if (sortBy === sortedMethod) {
       sortedPhones = [...items].reverse();
-      this.setState(() => ({ items: sortedPhones }))
+      setPhonesItems(sortedPhones);
+
       return;
     }
 
     if (sortParam === 'string') {
       sortedPhones = [...items]
-        .sort((a, b) => a[sortBy].localeCompare(b[sortBy]))
-
-      this.setState(() => ({
-        items: sortedPhones,
-        sortedMethod: sortBy,
-      }))
+        .sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
+      setPhonesItems(sortedPhones);
+      setSortedMethod(sortBy);
 
       return;
     }
@@ -187,134 +185,71 @@ class App extends React.PureComponent {
       sortedPhones = [...items]
         .sort((a, b) => a[sortBy] - b[sortBy]);
 
-      this.setState(() => ({
-        items: sortedPhones,
-        sortedMethod: sortBy,
-      }))
-
-      return;
+      setPhonesItems(sortedPhones);
+      setSortedMethod(sortBy);
     }
-  }
+  };
 
-  handleInput = (e) => {
-    this.setState({ searchValue: e.target.value.replace(/^ /, '') });
-  }
-
-  debounce = (f, delay) => {
-    let timerID;
-
-    const debounced = () => {
-      clearTimeout(timerID);
-      timerID = setTimeout(() => f(), delay);
-    }
-
-    return debounced;
-  }
-
-  filterPost = () => {
-    const { searchValue } = this.state;
-
-    this.setState({ filterValue: searchValue, currentPage: 1 }, () => {
-      const filteredList = this.filterPhones()
-      this.isCheckedAll(filteredList)
-    });
-  }
-
-  debounceWrapper = this.debounce(this.filterPost, 1000)
-
-  filterPhones = () => {
-    const { items, filterValue } = this.state;
-    const valueForSearch = Object
-      .values(columnConfig)
-      .filter(config => config.isSearchable);
-    const searchKey = [];
-
-    let filteredPhones;
-    valueForSearch
-      .map(phone => phone.title)
-      .forEach(key => searchKey
-        .push(this.switchTitle(key)));
-
-    searchKey.forEach(key => {
-      filteredPhones = items.filter(phone => {
-        if (phone[key]
-          .toLocaleLowerCase()
-          .includes(filterValue
-            .toLocaleLowerCase())) {
-          return true;
-        }
-      })
-    });
-
-    return filteredPhones;
-  }
-
-  render() {
-    const {
-      perPage, items, currentPage, selectAll, searchValue,
-      filterValue,
-    } = this.state;
-    let searchedPhones = items;
-
-    if (filterValue) {
-      searchedPhones = this.filterPhones();
-    }
-
-    let visibleFrom = ((currentPage - 1) * perPage) + 1;
-    let visibleTo = (currentPage * perPage) > searchedPhones.length
-      ? searchedPhones.length
-      : currentPage * perPage;
-
-    return (
-      <div className="App">
-        <input
-          type="text"
-          className="form-control myInput"
-          placeholder="Write for search"
-          value={searchValue}
-          onChange={(e) => {
-            this.handleInput(e);
-            this.debounceWrapper();
-          }}
-        />
-        {searchedPhones.length ? (
-          <>
-            <h3
-              className="myCount"
-            >
-              from {visibleFrom} to {visibleTo} of {searchedPhones.length}
-            </h3>
-            <DataTable
-              items={searchedPhones}
-              columnConfig={columnConfig}
+  return (
+    <div className="App">
+      <input
+        type="text"
+        className="form-control myInput"
+        placeholder="Write for search"
+        value={inputValue}
+        onChange={startDebounce}
+      />
+      {visiblePhones.length ? (
+        <>
+          <h3
+            className="myCount"
+          >
+            from
+            {' '}
+            {
+              ((currentPage - 1) * perPage) + 1
+            }
+            {' '}
+            to
+            {' '}
+            {
+              (currentPage * perPage) > visiblePhones.length
+                ? visiblePhones.length
+                : currentPage * perPage
+            }
+            {' '}
+            of
+            {' '}
+            {visiblePhones.length}
+          </h3>
+          <DataTable
+            items={visiblePhones}
+            columnConfig={columnConfig}
+            perPage={perPage}
+            currentPage={currentPage}
+            selected={selectAll}
+            changeStatus={changeStatus}
+            selectAllPhones={selectAllPhones}
+            sortPhonesBy={sortPhonesBy}
+          />
+          <div className="myContainer">
+            <Select
               perPage={perPage}
-              currentPage={currentPage}
-              selected={selectAll}
-              changeStatus={this.changeStatus}
-              selectAllPhones={this.selectAllPhones}
-              sortPhonesBy={this.sortPhonesBy}
+              changePage={changeSelectPage}
             />
-            <div className="myContainer">
-              <Select
-                perPage={perPage}
-                changePage={this.changeSelectPage}
-              />
-              <Buttons
-                perPage={perPage}
-                items={searchedPhones}
-                page={currentPage}
-                selectPage={this.selectPage}
-                nearbyPage={this.nearbyPage}
-              />
-            </div>
-          </>
-        ) : (
-            <p className="myErr">Nothing matched the search</p>
-          )}
+            <Buttons
+              perPage={perPage}
+              items={visiblePhones}
+              page={currentPage}
+              selectPage={selectPage}
+              nearbyPage={nearbyPage}
+            />
+          </div>
+        </>
+      ) : (
+        <p className="myErr">Nothing matched the search</p>
+      )}
 
-      </div>
-    );
-  }
-}
-
-export default App;
+    </div>
+  );
+};
