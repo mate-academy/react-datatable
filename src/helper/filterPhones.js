@@ -1,6 +1,10 @@
 import { switchTitle } from './switchTitle';
 
 export const filterPhones = (columnConfig, items, searchValue) => {
+  if (!searchValue ) {
+    return items;
+  }
+
   const valueForSearch = Object
     .values(columnConfig)
     .filter(config => config.isSearchable);

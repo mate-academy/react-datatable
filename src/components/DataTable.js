@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes, { objectOf, shape } from 'prop-types';
 import { THead } from './THead';
 
-export const DataTable = ({ columnConfig, perPage, currentPage, items,
+export const DataTable = ({ columnConfig, items,
   selected, changeStatus, selectAllPhones, sortPhonesBy }) => {
-  const visiblePhones = items
-    .slice((currentPage - 1) * perPage, perPage * currentPage);
+
 
   return (
     <table className="table table-dark">
@@ -16,7 +15,7 @@ export const DataTable = ({ columnConfig, perPage, currentPage, items,
         sortPhonesBy={sortPhonesBy}
       />
       <tbody>
-        {visiblePhones.map(phone => (
+        {items.map(phone => (
           <tr key={phone.id}>
             <th scope="row">
               <input

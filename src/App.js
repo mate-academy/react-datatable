@@ -11,60 +11,47 @@ import { switchTitle } from './helper/switchTitle';
 import { columnConfig } from './helper/columnConfig';
 
 export const App = () => {
-  const [items, setPhonesItems] = useState([]);
+  const [phones, setPhones] = useState([]);
   const [searchValue, setSearchValue] = useState('');
-  const [inputValue, setInputValue] = useState('');
   const [perPage, setPerPageValue] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const [visiblePhones, setVisiblePhones] = useState([]);
   const [selectAll, setSelectAllStatus] = useState(false);
   const [sortedMethod, setSortedMethod] = useState('age');
-  let searchedPhones;
 
   useEffect(() => {
     getPhones()
       .then((phones) => {
-        setPhonesItems(phones);
-        setVisiblePhones(phones);
+        setPhones(phones);
       });
+
   }, []);
 
   useEffect(() => {
-    if (searchValue) {
-      searchedPhones = filterPhones(columnConfig, items, searchValue);
-      setVisiblePhones(searchedPhones);
-    } else {
-      searchedPhones = items;
-      setVisiblePhones(searchedPhones);
-    }
-  }, [searchValue, items]);
-
-  useEffect(() => {
-    const filter = filterPhones(columnConfig, items, searchValue);
+    const filter = filterPhones(columnConfig, phones, searchValue);
 
     if (filter.length) {
       isCheckedAll(filter);
     } else {
       isCheckedAll();
     }
-  }, [items]);
+  }, [phones]);
 
   useEffect(() => {
-    let filter = items;
+    let filter = phones;
 
     if (searchValue) {
-      filter = filterPhones(columnConfig, items, searchValue);
+      filter = filterPhones(columnConfig, phones, searchValue);
     }
 
     isCheckedAll(filter);
   }, [searchValue]);
 
   const debounceWrapper = useCallback(
-    debounce(value => setValue(value), 1000),
+    debounce(value => setSearchAndPageValue(value), 1000),
     []
   );
 
-  const setValue = (value) => {
+  const setSearchAndPageValue = (value) => {
     setSearchValue(value);
     setCurrentPage(1);
   };
@@ -77,20 +64,19 @@ export const App = () => {
   };
 
   const changeStatus = (id) => {
-    const preparedPhones = items.map(phone => ({
+    const preparedPhones = phones.map(phone => ({
       ...phone,
       checked: id === phone.id
         ? !phone.checked
         : phone.checked,
     }));
 
-    setPhonesItems(preparedPhones);
+    setPhones(preparedPhones);
   };
 
   const startDebounce = (e) => {
     const { value } = e.target;
 
-    setInputValue(value);
     debounceWrapper(value);
   };
 
@@ -102,10 +88,10 @@ export const App = () => {
   const nearbyPage = (e, path) => {
     e.preventDefault();
 
-    let filteredPhones = items;
+    let filteredPhones = phones;
 
     if (searchValue) {
-      filteredPhones = filterPhones(columnConfig, items, searchValue);
+      filteredPhones = filterPhones(columnConfig, phones, searchValue);
     }
 
     if ((currentPage + path > Math.ceil(filteredPhones.length / perPage))
@@ -116,18 +102,16 @@ export const App = () => {
     setCurrentPage(currentPage + path);
   };
 
-  const isCheckedAll = (phones = false) => {
-    let isSelected = items.every(phone => phone.checked);
-
-    if (!phones) {
+  const isCheckedAll = (sortedPhones = false) => {
+    let isSelected = phones.every(phone => phone.checked);
+    if (!sortedPhones) {
       if (isSelected) {
         setSelectAllStatus(true);
       } else {
         setSelectAllStatus(false);
       }
     } else {
-      isSelected = phones.every(phone => phone.checked);
-
+      isSelected = sortedPhones.every(phone => phone.checked);
       if (isSelected) {
         setSelectAllStatus(true);
       } else {
@@ -137,8 +121,8 @@ export const App = () => {
   };
 
   const selectAllPhones = () => {
-    const filteredPhones = filterPhones(columnConfig, items, searchValue);
-    const selectFilteredPhones = items
+    const filteredPhones = filterPhones(columnConfig, phones, searchValue);
+    const selectFilteredPhones = phones
       .map(phone => ({
         ...phone,
         checked: filteredPhones
@@ -148,15 +132,15 @@ export const App = () => {
       }));
 
     if (searchValue) {
-      setPhonesItems(selectFilteredPhones);
+      setPhones(selectFilteredPhones);
       setSelectAllStatus(!selectAll);
     } else {
-      const preparedPhonesWithoutSearchValue = items.map(phone => ({
+      const preparedPhonesWithoutSearchValue = phones.map(phone => ({
         ...phone,
         checked: !selectAll,
       }));
 
-      setPhonesItems(preparedPhonesWithoutSearchValue);
+      setPhones(preparedPhonesWithoutSearchValue);
       setSelectAllStatus(!selectAll);
     }
   };
@@ -166,29 +150,34 @@ export const App = () => {
     let sortedPhones = [];
 
     if (sortBy === sortedMethod) {
-      sortedPhones = [...items].reverse();
-      setPhonesItems(sortedPhones);
+      sortedPhones = [...phones].reverse();
+      setPhones(sortedPhones);
 
       return;
     }
 
     if (sortParam === 'string') {
-      sortedPhones = [...items]
+      sortedPhones = [...phones]
         .sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
-      setPhonesItems(sortedPhones);
+      setPhones(sortedPhones);
       setSortedMethod(sortBy);
 
       return;
     }
 
     if (sortParam === 'number') {
-      sortedPhones = [...items]
+      sortedPhones = [...phones]
         .sort((a, b) => a[sortBy] - b[sortBy]);
 
-      setPhonesItems(sortedPhones);
+      setPhones(sortedPhones);
       setSortedMethod(sortBy);
     }
   };
+
+  const mathcedPhones = filterPhones(columnConfig, phones, searchValue)
+
+  const slicedPhones = mathcedPhones
+    .slice((currentPage - 1) * perPage, perPage * currentPage);
 
   return (
     <div className="App">
@@ -196,10 +185,9 @@ export const App = () => {
         type="text"
         className="form-control myInput"
         placeholder="Write for search"
-        value={inputValue}
         onChange={startDebounce}
       />
-      {visiblePhones.length ? (
+      {mathcedPhones.length > 0 ? (
         <>
           <h3
             className="myCount"
@@ -213,17 +201,17 @@ export const App = () => {
             to
             {' '}
             {
-              (currentPage * perPage) > visiblePhones.length
-                ? visiblePhones.length
+              (currentPage * perPage) > mathcedPhones.length
+                ? mathcedPhones.length
                 : currentPage * perPage
             }
             {' '}
             of
             {' '}
-            {visiblePhones.length}
+            {mathcedPhones.length}
           </h3>
           <DataTable
-            items={visiblePhones}
+            items={slicedPhones}
             columnConfig={columnConfig}
             perPage={perPage}
             currentPage={currentPage}
@@ -239,7 +227,7 @@ export const App = () => {
             />
             <Buttons
               perPage={perPage}
-              items={visiblePhones}
+              items={mathcedPhones}
               page={currentPage}
               selectPage={selectPage}
               nearbyPage={nearbyPage}
@@ -247,8 +235,8 @@ export const App = () => {
           </div>
         </>
       ) : (
-        <p className="myErr">Nothing matched the search</p>
-      )}
+          <p className="myErr">Nothing matched the search</p>
+        )}
 
     </div>
   );

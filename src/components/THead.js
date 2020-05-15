@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import PropTypes, { objectOf, shape } from 'prop-types';
+import PropTypes from 'prop-types';
 
 export const THead = ({
   columnConfig,
