@@ -12,7 +12,7 @@ import { columnConfig } from './helper/columnConfig';
 
 export const App = () => {
   const [phones, setPhones] = useState([]);
-  const [searchValue, setSearchValue] = useState('');
+  const [query, setQuery] = useState('');
   const [perPage, setPerPageValue] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectAll, setSelectAllStatus] = useState(false);
@@ -27,7 +27,7 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    const filter = filterPhones(columnConfig, phones, searchValue);
+    const filter = filterPhones(columnConfig, phones, query);
 
     if (filter.length) {
       isCheckedAll(filter);
@@ -39,12 +39,12 @@ export const App = () => {
   useEffect(() => {
     let filter = phones;
 
-    if (searchValue) {
-      filter = filterPhones(columnConfig, phones, searchValue);
+    if (query) {
+      filter = filterPhones(columnConfig, phones, query);
     }
 
     isCheckedAll(filter);
-  }, [searchValue]);
+  }, [query]);
 
   const debounceWrapper = useCallback(
     debounce(value => setSearchAndPageValue(value), 1000),
@@ -52,7 +52,7 @@ export const App = () => {
   );
 
   const setSearchAndPageValue = (value) => {
-    setSearchValue(value);
+    setQuery(value);
     setCurrentPage(1);
   };
 
@@ -90,8 +90,8 @@ export const App = () => {
 
     let filteredPhones = phones;
 
-    if (searchValue) {
-      filteredPhones = filterPhones(columnConfig, phones, searchValue);
+    if (query) {
+      filteredPhones = filterPhones(columnConfig, phones, query);
     }
 
     if ((currentPage + path > Math.ceil(filteredPhones.length / perPage))
@@ -121,7 +121,7 @@ export const App = () => {
   };
 
   const selectAllPhones = () => {
-    const filteredPhones = filterPhones(columnConfig, phones, searchValue);
+    const filteredPhones = filterPhones(columnConfig, phones, query);
     const selectFilteredPhones = phones
       .map(phone => ({
         ...phone,
@@ -131,7 +131,7 @@ export const App = () => {
           : phone.checked,
       }));
 
-    if (searchValue) {
+    if (query) {
       setPhones(selectFilteredPhones);
       setSelectAllStatus(!selectAll);
     } else {
@@ -174,7 +174,7 @@ export const App = () => {
     }
   };
 
-  const mathcedPhones = filterPhones(columnConfig, phones, searchValue)
+  const mathcedPhones = filterPhones(columnConfig, phones, query)
 
   const slicedPhones = mathcedPhones
     .slice((currentPage - 1) * perPage, perPage * currentPage);
