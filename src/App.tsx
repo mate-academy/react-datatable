@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import './app.css';
 
 import { DataTable } from './components/DataTable';
 import { getPhones } from './helper/getData';
-import { Select } from './components/select';
+import { Select } from "./components/Select";
 import { Buttons } from './components/Buttons';
 import { debounce } from './helper/debounce';
 import { filterPhones } from './helper/filterPhones';
@@ -11,7 +11,7 @@ import { switchTitle } from './helper/switchTitle';
 import { columnConfig } from './helper/columnConfig';
 
 export const App = () => {
-  const [phones, setPhones] = useState([]);
+  const [phones, setPhones] = useState<Phone[]>([]);
   const [query, setQuery] = useState('');
   const [perPage, setPerPageValue] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,12 +32,12 @@ export const App = () => {
     if (filter.length) {
       isCheckedAll(filter);
     } else {
-      isCheckedAll();
+      isCheckedAll([]);
     }
   }, [phones]);
 
   useEffect(() => {
-    let filter = phones;
+    let filter: Phone[] = phones;
 
     if (query) {
       filter = filterPhones(columnConfig, phones, query);
@@ -47,24 +47,24 @@ export const App = () => {
   }, [query]);
 
   const debounceWrapper = useCallback(
-    debounce(value => setSearchAndPageValue(value), 1000),
+    debounce((value: string) => setSearchAndPageValue(value), 1000),
     []
   );
 
-  const setSearchAndPageValue = (value) => {
+  const setSearchAndPageValue = (value: string) => {
     setQuery(value);
     setCurrentPage(1);
   };
 
-  const changeSelectPage = (e) => {
-    const newValue = e.target.value;
+  const changeSelectPage = (e: ChangeEvent<HTMLSelectElement>) => {
+    const newValue: number = +e.target.value;
 
     setPerPageValue(newValue);
     setCurrentPage(1);
   };
 
-  const changeStatus = (id) => {
-    const preparedPhones = phones.map(phone => ({
+  const changeStatus = (id: string) => {
+    const preparedPhones: Phone[] = phones.map(phone => ({
       ...phone,
       checked: id === phone.id
         ? !phone.checked
@@ -74,18 +74,18 @@ export const App = () => {
     setPhones(preparedPhones);
   };
 
-  const startDebounce = (e) => {
+  const startDebounce = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
     debounceWrapper(value);
   };
 
-  const selectPage = (e, page) => {
+  const selectPage = (e: React.MouseEvent, page: number) => {
     e.preventDefault();
     setCurrentPage(page);
   };
 
-  const nearbyPage = (e, path) => {
+  const nearbyPage = (e: React.MouseEvent, path: number) => {
     e.preventDefault();
 
     let filteredPhones = phones;
@@ -102,16 +102,16 @@ export const App = () => {
     setCurrentPage(currentPage + path);
   };
 
-  const isCheckedAll = (sortedPhones = false) => {
+  const isCheckedAll = (sortedPhones: Phone[]) => {
     let isSelected = phones.every(phone => phone.checked);
-    if (!sortedPhones) {
+    if (!sortedPhones.length) {
       if (isSelected) {
         setSelectAllStatus(true);
       } else {
         setSelectAllStatus(false);
       }
     } else {
-      isSelected = sortedPhones.every(phone => phone.checked);
+      isSelected = sortedPhones.every((phone: Phone) => phone.checked);
       if (isSelected) {
         setSelectAllStatus(true);
       } else {
@@ -126,7 +126,7 @@ export const App = () => {
       .map(phone => ({
         ...phone,
         checked: filteredPhones
-          .some(filter => filter.id === phone.id)
+          .some((filter: Phone) => filter.id === phone.id)
           ? !selectAll
           : phone.checked,
       }));
@@ -145,7 +145,7 @@ export const App = () => {
     }
   };
 
-  const sortPhonesBy = (sortParam, sortTitle) => {
+  const sortPhonesBy = (sortParam: string, sortTitle: string) => {
     const sortBy = switchTitle(sortTitle);
     let sortedPhones = [];
 
@@ -158,7 +158,16 @@ export const App = () => {
 
     if (sortParam === 'string') {
       sortedPhones = [...phones]
-        .sort((a, b) => a[sortBy].localeCompare(b[sortBy]));
+        .sort((a: Phone, b: Phone): number => {
+          const comperator1 = a[sortBy];
+          const comperator2 = b[sortBy];
+
+          if (typeof comperator1 === 'string') {
+            return comperator1.localeCompare(comperator2 as string)
+          }
+
+          return 0
+        });
       setPhones(sortedPhones);
       setSortedMethod(sortBy);
 
@@ -167,7 +176,16 @@ export const App = () => {
 
     if (sortParam === 'number') {
       sortedPhones = [...phones]
-        .sort((a, b) => a[sortBy] - b[sortBy]);
+        .sort((a: Phone, b: Phone): number => {
+          const comperator1 = a[sortBy];
+          const comperator2 = b[sortBy];
+
+          if (typeof comperator1 === 'number') {
+            return comperator1 - (comperator2 as number)
+          }
+
+          return 0
+        });
 
       setPhones(sortedPhones);
       setSortedMethod(sortBy);
@@ -213,8 +231,6 @@ export const App = () => {
           <DataTable
             items={slicedPhones}
             columnConfig={columnConfig}
-            perPage={perPage}
-            currentPage={currentPage}
             selected={selectAll}
             changeStatus={changeStatus}
             selectAllPhones={selectAllPhones}

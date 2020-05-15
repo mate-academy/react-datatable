@@ -1,8 +1,15 @@
 import React from 'react';
 import cn from 'classnames';
-import PropTypes, { objectOf, shape } from 'prop-types';
 
-export const Buttons = ({ page, nearbyPage, selectPage, items, perPage }) => {
+interface Props {
+  page: number;
+  nearbyPage: (e: React.MouseEvent, path: number) => void;
+  selectPage: (e: React.MouseEvent, page: number) => void;
+  items: Phone[];
+  perPage: number;
+}
+
+export const Buttons: React.FC<Props> = ({ page, nearbyPage, selectPage, items, perPage }) => {
   const buttons = new Array(Math.ceil(items.length / perPage))
     .fill(0)
     .map((button, i) => i + 1);
@@ -50,18 +57,4 @@ export const Buttons = ({ page, nearbyPage, selectPage, items, perPage }) => {
       </ul>
     </nav>
   );
-};
-
-Buttons.propTypes = {
-  page: PropTypes.number.isRequired,
-  nearbyPage: PropTypes.func.isRequired,
-  selectPage: PropTypes.func.isRequired,
-  items: PropTypes.arrayOf(objectOf(shape({
-    age: PropTypes.number.isRequired,
-    id: PropTypes.string.isRequired,
-    imageUrl: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    snippet: PropTypes.string.isRequired,
-  }))).isRequired,
-  perPage: PropTypes.number.isRequired,
 };

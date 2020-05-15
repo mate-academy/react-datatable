@@ -1,8 +1,14 @@
 import React from 'react';
 import cn from 'classnames';
-import PropTypes from 'prop-types';
 
-export const THead = ({
+interface Props {
+  columnConfig: ColumnConf;
+  selected: boolean;
+  selectAllPhones: () => void;
+  sortPhonesBy: (sortParam: string, sortTitle: string) => void;
+}
+
+export const THead: React.FC<Props> = ({
   columnConfig,
   selected,
   selectAllPhones,
@@ -38,9 +44,3 @@ export const THead = ({
     </tr>
   </thead>
 );
-
-THead.propTypes = {
-  selected: PropTypes.bool.isRequired,
-  selectAllPhones: PropTypes.func.isRequired,
-  sortPhonesBy: PropTypes.func.isRequired,
-};
