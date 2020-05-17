@@ -168,6 +168,7 @@ export const App = () => {
 
           return 0
         });
+
       setPhones(sortedPhones);
       setSortedMethod(sortBy);
 
@@ -191,6 +192,21 @@ export const App = () => {
       setSortedMethod(sortBy);
     }
   };
+
+  const editCell = (id: string, value: string, configParam: string) => {
+    const newValues = phones.map(phone => ({
+      ...phone,
+      [configParam]: id === phone.id
+        ? value
+        : phone[configParam]
+    })).map(phone => ({
+      ...phone,
+      age: +phone.age,
+    }))
+
+    setPhones(newValues);
+    setSortedMethod('');
+  }
 
   const mathcedPhones = filterPhones(columnConfig, phones, query)
 
@@ -235,6 +251,7 @@ export const App = () => {
             changeStatus={changeStatus}
             selectAllPhones={selectAllPhones}
             sortPhonesBy={sortPhonesBy}
+            editCell={editCell}
           />
           <div className="myContainer">
             <Select

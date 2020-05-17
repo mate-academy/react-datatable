@@ -38,3 +38,11 @@ interface ColumnConf {
   age: Age;
   snippet: Snippet;
 }
+
+interface Config {
+  checked: string;
+  age: string;
+  name: string;
+  snippet: string;
+}
+

@@ -1,3 +1,7 @@
+body {
+  background-color: #dbdbdb;
+}
+
 .mySelect {
   width: 80px;
 }
@@ -102,4 +106,22 @@
 
 .custom-checkbox:disabled + label::before {
   background-color: #e9ecef;
+}
+
+.input {
+  display: none;
+}
+
+.none {
+  display: none;
+}
+
+.editing > input {
+  display: block;
+  width: 100%;
+}
+
+.error {
+  color: rgb(216, 0, 0);
+  font-weight: bold;
 }
