@@ -23,7 +23,6 @@ export const App = () => {
       .then((phones) => {
         setPhones(phones);
       });
-
   }, []);
 
   useEffect(() => {
