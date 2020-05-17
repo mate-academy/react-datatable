@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
 import './App.css';
 
 import { getPhones, required, minLength, dataType } from './helpers';
-import { DataTable } from './components/DataTable';
 import { Columns, SortTypes } from './components/Emuns';
+import { DataTable } from './components/DataTable';
 import { Search } from './components/Search';
 import { Pagination } from "./components/Pagination";
 
@@ -36,17 +37,12 @@ function App() {
   const [isSelectedAll, setIsSelectedAll] = useState(false);
   const [actualPage, setActualPage] = useState(1);
   const [perPage, setPerPage] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
 
-  const firstVisibleIndex = ((actualPage - 1) * perPage) + 1;
+  const firstVisibleIndex = ((actualPage - 1) * perPage);
 
   useEffect(() => {
     loadPhones();
   }, []);
-
-  useEffect(() => {
-    setTotalPages(Math.ceil(phones.length / perPage));
-  }, [phones.length, perPage]);
 
   useEffect(() => {
     setActualPage(1);
@@ -71,7 +67,6 @@ function App() {
         return preparedPhone;
       })
       setPhones(preparedPhones);
-      setTotalPages(Math.ceil(preparedPhones.length / perPage));
     } catch {
       setErrorMessage('Oops! Something went wrong... :(');
     }
@@ -159,11 +154,13 @@ function App() {
     () => filterPhones(phones, filterQuery),
     [filterPhones, phones, filterQuery],
   );
+
   const sortedPhones = useMemo(
     () => sortPhones(filteredPhones, sortType, sortReverse),
     [sortPhones, filteredPhones, sortType, sortReverse],
   );
-  const paginatedPhones = sortedPhones.slice(firstVisibleIndex - 1, firstVisibleIndex + perPage - 1);
+
+  const paginatedPhones = sortedPhones.slice(firstVisibleIndex, firstVisibleIndex + perPage);
 
   useEffect(() => {
     setIsSelectedAll(filteredPhones.length > 0 && filteredPhones.every(phone => phone.selected));

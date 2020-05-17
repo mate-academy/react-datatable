@@ -38,7 +38,7 @@ export const PhoneCells: React.FC<Props> = ({
   }
 
   const onButtonCancelClick = () => {
-    setDefaultState();
+    setEditFieldValue('');
   }
 
   const onKeyup = (e: KeyboardEvent) => {
@@ -79,8 +79,6 @@ export const PhoneCells: React.FC<Props> = ({
     setDefaultState();
   };
 
-
-
   return (
     <>
       {Object.keys(columnConfig).map((key) => (
@@ -100,7 +98,7 @@ export const PhoneCells: React.FC<Props> = ({
                 onBlur={e => saveChanges(e)}
               />
               <button
-                type="reset"
+                type="button"
                 className="delete is-small"
                 onClick={onButtonCancelClick}
               />
