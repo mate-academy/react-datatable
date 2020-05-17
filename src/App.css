@@ -1,0 +1,51 @@
+.table-headers {
+  width: max-content;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.table-headers-checkbox {
+  width: max-content;
+}
+.table-headers-name {
+  width: 30%;
+}
+.table-headers-age {
+  width: max-content;
+}
+
+.table-headers .icon {
+  display: inline-block;
+  padding-left: 1rem;
+}
+
+.pagination-setting {
+  font-size: 1em;
+  justify-content: center;
+  margin: .25rem;
+  padding-left: .5em;
+  padding-right: .5em;
+}
+
+.pagination.is-full {
+  width: 100%;
+}
+
+.pagination-link {
+  cursor: pointer;
+}
+
+.editing-form {
+  position: relative;
+}
+
+.editing-form .input {
+  padding-right: 1.5rem;
+}
+
+.editing-form .delete {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+}
