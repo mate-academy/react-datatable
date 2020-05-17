@@ -4,6 +4,16 @@
   vertical-align: bottom;
 }
 
+.table-headers-checkbox {
+  width: max-content;
+}
+.table-headers-name {
+  width: 30%;
+}
+.table-headers-age {
+  width: max-content;
+}
+
 .table-headers .icon {
   display: inline-block;
   padding-left: 1rem;

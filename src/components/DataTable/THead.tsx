@@ -3,6 +3,7 @@ import React from 'react';
 type Props = {
   columnConfig: ColumnConfig;
   isSelectedAll: boolean;
+  sortField: string;
   sortReverse: boolean;
   onSelectionChanged?: (id: string | null) => void;
   onSort: (name: string, field: SortField) => void;
@@ -11,6 +12,7 @@ type Props = {
 export const THead: React.FC<Props> = ({
   columnConfig,
   isSelectedAll,
+  sortField,
   sortReverse,
   onSelectionChanged,
   onSort,
@@ -19,7 +21,7 @@ export const THead: React.FC<Props> = ({
     <thead>
       <tr>
         {onSelectionChanged && (
-          <th>
+          <th className="table-headers table-headers-checkbox">
             <input
               type="checkbox"
               checked={isSelectedAll}
@@ -29,17 +31,17 @@ export const THead: React.FC<Props> = ({
         )}
         {Object.entries(columnConfig).map(([name, field]) => (
           <th
-            className="table-headers"
+            className={`table-headers table-headers-${name}`}
             key={field.title}
             onClick={() => onSort(name, field)}
           >
             {field.title}
-            {!sortReverse && field.sortType && (
+            {!sortReverse && sortField === name && (
               <span className="icon">
                 <span className="fas fa-angle-down" aria-hidden="true" />
               </span>
             )}
-            {sortReverse && field.sortType && (
+            {sortReverse && sortField === name && (
               <span className="icon">
                 <span className="fas fa-angle-up" aria-hidden="true" />
               </span>

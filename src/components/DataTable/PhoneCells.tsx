@@ -76,9 +76,7 @@ export const PhoneCells: React.FC<Props> = ({
         : phone;
     })]);
 
-    setEditPhoneId('');
-    setEditFieldName('');
-    setEditFieldValue('');
+    setDefaultState();
   };
 
 
@@ -101,8 +99,8 @@ export const PhoneCells: React.FC<Props> = ({
                 onChange={e => onChangeFieldValue(e)}
                 onBlur={e => saveChanges(e)}
               />
-
               <button
+                type="reset"
                 className="delete is-small"
                 onClick={onButtonCancelClick}
               />

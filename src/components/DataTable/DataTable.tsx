@@ -7,6 +7,7 @@ type Props = {
   allPhones: Phone[];
   columnConfig: ColumnConfig;
   isSelectedAll: boolean;
+  sortField: string;
   sortReverse: boolean;
   onSelectionChanged?: (id: string | null) => void;
   onSort: (name: string, field: SortField) => void;
@@ -18,6 +19,7 @@ export const DataTable: React.FC<Props> = ({
   allPhones,
   columnConfig,
   isSelectedAll,
+  sortField,
   sortReverse,
   onSelectionChanged,
   onSort,
@@ -28,6 +30,7 @@ export const DataTable: React.FC<Props> = ({
       <THead
         columnConfig={columnConfig}
         isSelectedAll={isSelectedAll}
+        sortField={sortField}
         sortReverse={sortReverse}
         onSelectionChanged={onSelectionChanged}
         onSort={onSort}

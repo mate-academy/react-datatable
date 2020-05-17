@@ -203,6 +203,7 @@ function App() {
               columnConfig={columnConfig}
               isSelectedAll={isSelectedAll}
               sortReverse={sortReverse}
+              sortField={sortField}
               onSelectionChanged={onSelectionChanged}
               onSort={onSort}
               setPhones={setPhones}
