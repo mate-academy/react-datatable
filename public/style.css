@@ -1,0 +1,63 @@
+
+.table {
+  border: 1px solid black;
+  width: 100%;
+}
+
+.table td {
+  border: 1px solid black;
+  height: 70px;
+}
+
+.table__textarea {
+
+  width: calc(100% - 40px);
+  height: 90%;
+}
+
+.thead {
+  background-color: grey;
+  color: white;
+
+}
+
+.selected {
+  background-color: turquoise;
+}
+
+.pagination {
+  margin: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination__buttons-wrapper {
+  margin: 20px;
+}
+
+.pagination__button {
+  width: 40px;
+  height: 40px;
+}
+
+.pagination__button--active {
+  background-color: grey;
+}
+
+.pagination__per-page-select {
+  margin-right: 10px;
+}
+
+.nonActive {
+  opacity: 0.3;
+}
+
+.title-pagination {
+  text-align: center;
+}
+
+.invisible {
+  display: none;
+}
