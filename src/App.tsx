@@ -50,10 +50,6 @@ const App = () => {
     }
   });
 
-  window.onbeforeunload = function() {
-    return false;
-  };
-
   useEffect(() => {
     if (columnName === '' || seachingText === '') {
       setFilteredPhones(phones);
